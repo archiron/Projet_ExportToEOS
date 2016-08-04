@@ -33,7 +33,13 @@ class env:
         eosText+=' ls /eos/cms/store/relval/' 
         return eosText
 
-    def eosFind(self):
-        eosFind="http://cms-project-relval.web.cern.ch/cms-project-relval/relval_stats/"
-        return eosFind
+    def eosCopy(self):
+        eosCopy="/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select"
+        eosCopy+=' cp -r ' 
+        return eosCopy
 
+    def eosTarget(self):
+        eosTarget="root://eosuser.cern.ch//eos/user/a/archiron/www/"
+        return eosTarget
+        
+        
