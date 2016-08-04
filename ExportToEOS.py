@@ -12,7 +12,7 @@ from getEnv import env
 class ExportToEOS(QWidget):
     def __init__(self):
         QWidget.__init__(self)
-        self.setWindowTitle('CheckRootFiles publish v0.1.2')
+        self.setWindowTitle('CheckRootFiles publish v0.2.0')
 
         self.cmsenv = env()
         self.texte = self.cmsenv.cmsAll()
@@ -77,32 +77,10 @@ class ExportToEOS(QWidget):
         self.layoutH_boutons.addStretch(1)
         self.layoutH_boutons.addWidget(self.boutonQ)
 
-		# creation label resume
-        self.labelResume = QLabel(self.trUtf8(self.texte), self)
-        # creation du grpe Folders paths
-        self.QGBoxFinal = QGroupBox("Folders paths")
-        vbox8 = QVBoxLayout()
-        vbox8.addWidget(self.labelResume)
-        self.QGBoxFinal.setLayout(vbox8)
-
-        #Layout intermediairy : ComboBox + labelcombo
-        self.layoutV_combobox = QVBoxLayout()
-        self.layoutV_combobox.addWidget(self.QGBoxFinal)
-        
-        # creation des onglets
-        self.onglets = QTabWidget()
-        self.onglets.setMinimumHeight(150)
-        self.onglets.setMaximumHeight(200)
-        self.generalTab = QWidget()
-        self.onglets.insertTab(0, self.generalTab, "General")
-        #Set Layout for Tabs Pages
-        self.generalTab.setLayout(self.layoutV_combobox)   
-
         #Layout principal
         self.layout_general = QVBoxLayout()
         self.layout_general.addLayout(self.QHL)
         self.layout_general.addLayout(self.layoutH_release)
-        self.layout_general.addWidget(self.onglets)
         self.layout_general.addLayout(self.layoutH_boutons)
         self.setLayout(self.layout_general)       
 
@@ -110,7 +88,7 @@ class ExportToEOS(QWidget):
 
     def Export_1(self):
         import subprocess
-        import os
+        import os, glob
     
         self.cmsenv = env()
         local_path = os.getcwd()
@@ -127,12 +105,19 @@ class ExportToEOS(QWidget):
             BoiteMessage.exec_()
         else:
             print "Export for " + self.lineedit1.text()
-            cmssw_version = self.lineedit1.text()
-            print "CMSSW VERSION : ", cmssw_version
-            cmd_eos = self.cmsenv.eosCopy() + os.getcwd() + '/' + self.lineedit1.text() + '/ ' + self.cmsenv.eosTarget() + self.lineedit1.text() + '/' #  
+            folder_name = self.lineedit1.text()
+            folder_path = os.getcwd() + '/' + str(folder_name)
+            print "Folder Name : ", folder_name
+            print "Folder Path : ", folder_path
+            
+            [number_of_dirs, number_of_files] = self.get_walk(folder_path)
+            print "there is %d files to copy" % number_of_files
+            print "there is %d dirs to copy" % number_of_dirs
+           
+            cmd_eos = self.cmsenv.eosCopy() + os.getcwd() + '/' + folder_name + '/ ' + self.cmsenv.eosTarget() + folder_name + '/' #  
             print "cmde eos : ", cmd_eos
-            proc = subprocess.Popen([cmd_eos], stdout=subprocess.PIPE, shell=True) 
-            (out, err) = proc.communicate()
+#            proc = subprocess.Popen([cmd_eos], stdout=subprocess.PIPE, shell=True) 
+#            (out, err) = proc.communicate()
 
     def ItemRelClicked1(self):
         print "ItemRelClicked1 : self.liste_folders : %s " % self.QLW1.currentItem().text()
@@ -148,4 +133,18 @@ class ExportToEOS(QWidget):
                 list_folder.append(it)
         return list_folder
 
- # list_DataSets_FULL -> liste_datasets
+    def get_walk(self, folder_path):
+        number_of_dirs = 0
+        number_of_files = 0
+        for path, dirs, files in os.walk(folder_path):
+            number_of_files += len(files)
+            print "nb of files %d" % number_of_files
+            for name in files:
+                print(os.path.join(path, name))
+            for name in dirs:
+                number_of_dirs += len(dirs)
+                print "nb of files %d" % number_of_dirs
+                print(os.path.join(path, name))
+                self.get_walk(os.path.join(path, name))
+        return [number_of_dirs, number_of_files]
+       
