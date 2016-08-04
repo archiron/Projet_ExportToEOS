@@ -12,7 +12,7 @@ from getEnv import env
 class ExportToEOS(QWidget):
     def __init__(self):
         QWidget.__init__(self)
-        self.setWindowTitle('CheckRootFiles publish v0.2.0')
+        self.setWindowTitle('CheckRootFiles publish v0.2.1')
 
         self.cmsenv = env()
         self.texte = self.cmsenv.cmsAll()
@@ -107,17 +107,23 @@ class ExportToEOS(QWidget):
             print "Export for " + self.lineedit1.text()
             folder_name = self.lineedit1.text()
             folder_path = os.getcwd() + '/' + str(folder_name)
-            print "Folder Name : ", folder_name
-            print "Folder Path : ", folder_path
+#            print "Folder Name : ", folder_name
+#            print "Folder Path : ", folder_path
             
             [number_of_dirs, number_of_files] = self.get_walk(folder_path)
             print "there is %d files to copy" % number_of_files
-            print "there is %d dirs to copy" % number_of_dirs
+            print "there is %d dirs to create" % number_of_dirs
            
             cmd_eos = self.cmsenv.eosCopy() + os.getcwd() + '/' + folder_name + '/ ' + self.cmsenv.eosTarget() + folder_name + '/' #  
-            print "cmde eos : ", cmd_eos
-#            proc = subprocess.Popen([cmd_eos], stdout=subprocess.PIPE, shell=True) 
-#            (out, err) = proc.communicate()
+#            print "cmde eos : ", cmd_eos
+            proc = subprocess.Popen([cmd_eos], stdout=subprocess.PIPE, shell=True) 
+            (out, err) = proc.communicate()
+#            print "out : %s" % out
+            
+            BoiteMessage = QMessageBox()
+            BoiteMessage.setText("All is done.")
+            BoiteMessage.setWindowTitle("INFORMATION !")
+            BoiteMessage.exec_()            
 
     def ItemRelClicked1(self):
         print "ItemRelClicked1 : self.liste_folders : %s " % self.QLW1.currentItem().text()
